@@ -5,25 +5,13 @@ import Header from '../Header';
 import axios from 'axios';
 // import moment from 'moment';
 import moment from 'moment-timezone';
-
+import AreaChart from '../AreaChart';
 
 function Message(props){
     var s = props.message, subject, action;
-    if(s.subject === 0){
-        subject = "Admin"
-    }else{
-        subject = "Hệ thống AI"
-    }
+    action = props.message.requestType
+    subject = props.message.createdBy
 
-    if(s.action === 0){
-        action = "mở cửa"
-    }else if(s.action === 1){
-        action = "đóng cửa"
-    }else if(s.action === 2){
-        action = "bật đèn"
-    }else if(s.action === 3){
-        action = "tắt đèn"
-    }
     // Hệ thống AI đã yêu cầu mở cửa
     console.log(typeof(s.createdAt))
     return(
@@ -39,11 +27,11 @@ function Message(props){
 }
 
 
-function Door(props){
+function AC(props){
     switch(props.option){
-        case 'DOOR:CLOSE':
+        case 0:
             return <span style={{color: "red"}}>Close</span>
-        case 'DOOR:OPEN':
+        case 1:
             return <span style={{color: "green"}}>OPEN</span>
         default:
             return <span style={{color: "blue"}}>SOMETHING WRONG??</span>
@@ -51,17 +39,22 @@ function Door(props){
 }
 
 function Bulb(props){
-    if(props.option === 'LIGHT:OFF'){
+    if(props.option === 0){
         return <span style={{color: "red"}}>Off</span>
-    }else if(props.option === 'LIGHT:ON'){
+    }else if(props.option === 1){
         return <span style={{color: "green"}}>On</span>
+    } else {
+        return <span style={{color: "blue"}}>abc</span>
     }
 }
 
-const URL_BACKEND = 'http://localhost:5000/'
+const URL_BACKEND = 'http://localhost:8080/api/requests'
+const URL_BACKEND_POST = 'http://localhost:8080/api/request'
+const URL_BACKEND_FETCH_LIGHT_RECORDS = 'http://localhost:8080/api/lights'
+const URL_BACKEND_FETCH_TEMP_RECORDS = 'http://localhost:8080/api/temps'
 const TIMEZONE = "Asia/Ho_Chi_Minh"
-const ADA_KEY = "aio_AgWg074IRFfEFP6quOIUQ8ruP5g7"
-
+const ADA_KEY = "aio_ygFe607ZEonhHKyeY6r63p2wCHIC"
+// const DOOR = 
 function convertDate(s){
     // s: string
     let date = moment(s)
@@ -71,35 +64,48 @@ function convertDate(s){
 export default function Main() {
     // Object + timestamp
     const [message, setMessage] = useState([])
-    const [door, setDoor] = useState('DOOR:CLOSE')
-    const [bulb, setBulb] = useState('LIGHT:OFF')
-    const [colorDoor, setColorDoor] = useState('danger')
+    const [ac, setAC] = useState(0)
+    const [bulb, setBulb] = useState(0)
+    const [colorAC, setColorAC] = useState('danger')
     const [colorBulb, setColorBulb] = useState('danger')
+    const [lightRecords, setLightRecords] = useState([])
+    const [tempRecords, setTempRecords] = useState([])
 
     useEffect(() => {
 
         axios.get(URL_BACKEND).then(res => {setMessage(res.data)}).catch(err => {console.log(err)})
 
-        axios.get("https://io.adafruit.com/api/v2/GodOfThunderK19/feeds/swt-light").then(res => {
+        axios.get("https://io.adafruit.com/api/v2/DucLe/feeds/ducle-test-led").then(res => {
                 console.log(res.data)
             }).catch(err => {console.log(err)})
-    },[])
+    },[message.length])
 
     useEffect(() => {
         let interval = null;
         let data_device;
         interval = setInterval(() => {
-            axios.get(`https://io.adafruit.com/api/v2/GodOfThunderK19/feeds?x-aio-key=` + ADA_KEY).then(res => {
+            axios.get(`https://io.adafruit.com/api/v2/DucLe/feeds?x-aio-key=` + ADA_KEY).then(res => {
+                console.log(res)
                 data_device = res.data
-                let newDoor = data_device.filter(item => item.key === 'swt-door')[0].last_value
-                let newBulb = data_device.filter(item => item.key === 'swt-light')[0].last_value
-                setDoor(newDoor)
+                let newAC = data_device.filter(item => item.key === 'ducle-ac')[0].last_value
+                let newBulb = data_device.filter(item => item.key === 'ducle-test-led')[0].last_value
+                setAC(newAC)
                 setBulb(newBulb)
                 
-                setColorDoor(newDoor === 'DOOR:OPEN' ? 'success' : 'danger')
-                setColorBulb(newBulb === 'LIGHT:ON' ? 'success' : 'danger')
+                setColorAC(newAC === 1 ? 'success' : 'danger')
+                setColorBulb(newBulb === 1 ? 'success' : 'danger')
             }).catch(err => {console.log(err)})
-        }, 750); 
+            axios.get(URL_BACKEND_FETCH_LIGHT_RECORDS).then(res => {
+                let light = res.data
+                if (light)
+                    setLightRecords(light)
+            }).catch(err => {console.log(err)})
+            axios.get(URL_BACKEND_FETCH_TEMP_RECORDS).then(res => {
+                let temp = res.data
+                if (temp)
+                    setTempRecords(temp)
+            }).catch(err => {console.log(err)})
+        }, 5000); 
         
         return () => clearInterval(interval);
       }, []);
@@ -110,15 +116,15 @@ export default function Main() {
 
     })
 
-    async function handleDoor(){
+    async function handleAC(){
+        let newAC = (ac == 1) ? 0 : 1
         let obj = {
-            subject: 0,
-            action: 0,
-            state: 0
+            requestType: newAC == 1 ? "AC_ON" : "AC_OFF",
+            requestStatus: "SUCCESS",
+            status: "ACTIVE"
         }
-        await axios.post(URL_BACKEND, obj).catch(err => {console.log(err)})
-        let newDoor = (door === 'DOOR:OPEN') ? 'DOOR:CLOSE' : 'DOOR:OPEN'
-        axios.post("https://io.adafruit.com/api/v2/GodOfThunderK19/feeds/swt-door/data", {"value": newDoor}, 
+        axios.post(URL_BACKEND_POST, obj).then(console.log('inserted ac')).catch(err => {console.log(err)})
+        axios.post("https://io.adafruit.com/api/v2/DucLe/feeds/ducle-ac/data", {"value": newAC}, 
         {
             headers: {
                 'X-AIO-Key': ADA_KEY
@@ -130,14 +136,14 @@ export default function Main() {
     }
 
     async function handleBulb(){
+        let newBulb = (bulb == 0) ? 1 : 0
         let obj = {
-            subject: 0,
-            action: 2,
-            state: 0
+            requestType: newBulb == 1 ? "LIGHT_ON" : "LIGHT_OFF",
+            requestStatus: "SUCCESS",
+            status: "ACTIVE"
         }
-        await axios.post(URL_BACKEND, obj).catch(err => {console.log(err)})
-        let newBulb = (bulb === 'LIGHT:OFF') ? 'LIGHT:ON' : 'LIGHT:OFF'
-        await axios.post("https://io.adafruit.com/api/v2/GodOfThunderK19/feeds/swt-light/data", {"value": newBulb},
+        await axios.post(URL_BACKEND_POST, obj).then(console.log('inserted light')).catch(err => {console.log(err)})
+        await axios.post("https://io.adafruit.com/api/v2/DucLe/feeds/ducle-test-led/data", {"value": newBulb},
         {
             headers: {
                 'X-AIO-Key': ADA_KEY
@@ -160,15 +166,19 @@ export default function Main() {
                         // src="https://media.w3.org/2010/05/sintel/trailer_hd.mp4"
                         src = "https://9be4-115-78-8-83.ngrok.io/video"
                     />    */}
-                    <img style={{height: "30vw", width:"54vw"}} alt="Video here" src="http://localhost:9999/video"></img>       
                     {/* </div> */}
+                    <AreaChart records={lightRecords} title="Light records"/>
+                    <AreaChart records={tempRecords} title="Temp records"/>
+                    <div className='current-state'>
+                        <div className='door'>Current ac:  <AC option={parseInt(ac)} /></div>
+                        <div className='bulb'>Current bulb:  <Bulb option={parseInt(bulb)} /></div>
+                    </div>
                     <div className='info'>
-                        <div className='door'>State of door:  <Door option={door} /></div>
-                        <div className='bulb'>State of bulb:  <Bulb option={bulb} /></div>
+                        <div className='door'>State of ac:  <AC option={parseInt(ac)} /></div>
+                        <div className='bulb'>State of bulb:  <Bulb option={parseInt(bulb)} /></div>
                     </div>
                     <div className='control'>
-                        <Button variant={colorDoor} className="btn-1" onClick={() => handleDoor()}>Door Switcher</Button> 
-                        <Button variant={colorDoor} className="btn-1" onClick={() => handleDoor()}>Mask Recognition Switcher</Button> 
+                        <Button variant={colorAC} className="btn-1" onClick={() => handleAC()}>AC Switcher</Button> 
                         <Button variant={colorBulb} className="btn-1" onClick={() => handleBulb()}>Bulb Switcher</Button>
                     </div>
                     <div className='chatbox input'>

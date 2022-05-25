@@ -1,7 +1,0 @@
-{
-  "kafkaBrokers": [
-    "swat-broker:29092"
-  ],
-  "kafkaPartitionsConsumedConcurrently": "3",
-  "redisUri": "redis://swat-redis-dev/0"
-}
