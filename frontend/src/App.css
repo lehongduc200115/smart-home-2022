@@ -77,6 +77,13 @@
 	font-weight: bold;
 	font-size: 20px;
 }
+.current-state { 
+	grid-area: auto / auto / auto / auto;
+	display: flex;
+	text-transform: uppercase;
+	font-weight: bold;
+	font-size: 20px;
+}
 .door{
 	width: 65%;
 	margin-left: 10px;
