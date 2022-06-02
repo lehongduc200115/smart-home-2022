@@ -53,7 +53,8 @@ const URL_BACKEND_POST = 'http://localhost:8080/api/request'
 const URL_BACKEND_FETCH_LIGHT_RECORDS = 'http://localhost:8080/api/lights'
 const URL_BACKEND_FETCH_TEMP_RECORDS = 'http://localhost:8080/api/temps'
 const TIMEZONE = "Asia/Ho_Chi_Minh"
-const ADA_KEY = "aio_ygFe607ZEonhHKyeY6r63p2wCHIC"
+const ADA_KEY = "aio_ivOa26esimegQ6vCHcXcl8EP1giL"
+// const ADA_KEY = "aio_ygFe607ZEonhHKyeY6r63p2wCHIC"
 // const DOOR = 
 function convertDate(s){
     // s: string

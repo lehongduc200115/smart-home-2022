@@ -7,7 +7,8 @@ const init = async () => {
 
   mongoose
     .connect(
-      "mongodb+srv://swat-js:G28Pyl2eTGVVaYmWv3O2Medf@swat-js-dev.fwbu9.mongodb.net/le-rule-engine?retryWrites=true&w=majority",
+      // "mongodb+srv://swat-js:G28Pyl2eTGVVaYmWv3O2Medf@swat-js-dev.fwbu9.mongodb.net/le-rule-engine?retryWrites=true&w=majority",
+      "mongodb+srv://lehongduc200115:totran0302@smarthome2022cluster.jykyl.mongodb.net/?retryWrites=true&w=majority",
       { useNewUrlParser: true, useUnifiedTopology: true }
     )
     .then(() => console.log("MongoDB connected...."))
