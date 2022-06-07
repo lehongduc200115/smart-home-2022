@@ -53,9 +53,18 @@ const URL_BACKEND_POST = 'http://localhost:8080/api/request'
 const URL_BACKEND_FETCH_LIGHT_RECORDS = 'http://localhost:8080/api/lights'
 const URL_BACKEND_FETCH_TEMP_RECORDS = 'http://localhost:8080/api/temps'
 const TIMEZONE = "Asia/Ho_Chi_Minh"
-const ADA_KEY = "aio_ivOa26esimegQ6vCHcXcl8EP1giL"
-// const ADA_KEY = "aio_ygFe607ZEonhHKyeY6r63p2wCHIC"
-// const DOOR = 
+
+// const ADA_KEY = "aio_ivOa26esimegQ6vCHcXcl8EP1giL"
+const ADA_USERNAME = "duyvu1109"
+// const ADA_USERNAME = "DucLe"
+const ADA_KEY = "aio_uBle44pKdRkQr19UXFYhbMah7Kwk"
+const BTN_FAN = 'btt-fan'
+// const BTN_FAN = 'ducle-ac'
+const BTN_LED = 'btt-led'
+// const BTN_LED = 'ducle-test-led'
+const LIGHT_SENSOR = 'bbc-light'
+const TEMP_SENSOR = 'bbc-temp'
+
 function convertDate(s){
     // s: string
     let date = moment(s)
@@ -76,7 +85,7 @@ export default function Main() {
 
         axios.get(URL_BACKEND).then(res => {setMessage(res.data)}).catch(err => {console.log(err)})
 
-        axios.get("https://io.adafruit.com/api/v2/DucLe/feeds/ducle-test-led").then(res => {
+        axios.get(`https://io.adafruit.com/api/v2/${ADA_USERNAME}/feeds/${BTN_LED}`).then(res => {
                 console.log(res.data)
             }).catch(err => {console.log(err)})
     },[message.length])
@@ -85,11 +94,11 @@ export default function Main() {
         let interval = null;
         let data_device;
         interval = setInterval(() => {
-            axios.get(`https://io.adafruit.com/api/v2/DucLe/feeds?x-aio-key=` + ADA_KEY).then(res => {
+            axios.get(`https://io.adafruit.com/api/v2/${ADA_USERNAME}/feeds?x-aio-key=` + ADA_KEY).then(res => {
                 console.log(res)
                 data_device = res.data
-                let newAC = data_device.filter(item => item.key === 'ducle-ac')[0].last_value
-                let newBulb = data_device.filter(item => item.key === 'ducle-test-led')[0].last_value
+                let newAC = data_device.filter(item => item.key === BTN_FAN)[0].last_value
+                let newBulb = data_device.filter(item => item.key === BTN_LED)[0].last_value
                 setAC(newAC)
                 setBulb(newBulb)
                 
@@ -125,7 +134,7 @@ export default function Main() {
             status: "ACTIVE"
         }
         axios.post(URL_BACKEND_POST, obj).then(console.log('inserted ac')).catch(err => {console.log(err)})
-        axios.post("https://io.adafruit.com/api/v2/DucLe/feeds/ducle-ac/data", {"value": newAC}, 
+        axios.post(`https://io.adafruit.com/api/v2/${ADA_USERNAME}/feeds/${BTN_FAN}/data`, {"value": newAC}, 
         {
             headers: {
                 'X-AIO-Key': ADA_KEY
@@ -144,7 +153,7 @@ export default function Main() {
             status: "ACTIVE"
         }
         await axios.post(URL_BACKEND_POST, obj).then(console.log('inserted light')).catch(err => {console.log(err)})
-        await axios.post("https://io.adafruit.com/api/v2/DucLe/feeds/ducle-test-led/data", {"value": newBulb},
+        await axios.post(`https://io.adafruit.com/api/v2/${ADA_USERNAME}/feeds/${BTN_LED}/data`, {"value": newBulb},
         {
             headers: {
                 'X-AIO-Key': ADA_KEY
@@ -160,14 +169,6 @@ export default function Main() {
             <Header />
             <div className='main'>
                 <div className='main-container'>
-                    {/* <div className='video'> */}
-                    {/* <Player
-                        playsInline
-                        poster="/assets/poster.png"
-                        // src="https://media.w3.org/2010/05/sintel/trailer_hd.mp4"
-                        src = "https://9be4-115-78-8-83.ngrok.io/video"
-                    />    */}
-                    {/* </div> */}
                     <AreaChart records={lightRecords} title="Light records"/>
                     <AreaChart records={tempRecords} title="Temp records"/>
                     <div className='current-state'>
