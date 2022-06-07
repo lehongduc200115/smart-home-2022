@@ -3,18 +3,20 @@
 const Hapi = require("@hapi/hapi");
 
 const init = async () => {
+  require('dotenv').config();
   const mongoose = require("mongoose");
 
   mongoose
     .connect(
-      // "mongodb+srv://swat-js:G28Pyl2eTGVVaYmWv3O2Medf@swat-js-dev.fwbu9.mongodb.net/le-rule-engine?retryWrites=true&w=majority",
-      "mongodb+srv://lehongduc200115:totran0302@smarthome2022cluster.jykyl.mongodb.net/?retryWrites=true&w=majority",
+      process.env.MONGO_URI,
       { useNewUrlParser: true, useUnifiedTopology: true }
     )
     .then(() => console.log("MongoDB connected...."))
     .catch((err) => console.log(err));
   //Define Schema
-
+  
+  // console.log(`mongo_uri: ${process.env}`)
+  console.log(process.env);
   let requestSchema = {
     requestType: String,
     requestStatus: String,
