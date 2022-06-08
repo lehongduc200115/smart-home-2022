@@ -3,26 +3,24 @@
 const Hapi = require("@hapi/hapi");
 
 const init = async () => {
-  require('dotenv').config();
+  require("dotenv").config();
   const mongoose = require("mongoose");
 
   mongoose
-    .connect(
-      process.env.MONGO_URI,
-      { useNewUrlParser: true, useUnifiedTopology: true }
-    )
+    .connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
     .then(() => console.log("MongoDB connected...."))
     .catch((err) => console.log(err));
   //Define Schema
-  
-  // console.log(`mongo_uri: ${process.env}`)
-  console.log(process.env);
+
   let requestSchema = {
     requestType: String,
     requestStatus: String,
     status: String,
     createdAt: Date,
-    createdBy: String
+    createdBy: String,
   };
   let lightSchema = {
     value: String,
@@ -34,11 +32,18 @@ const init = async () => {
     status: String,
     createdAt: Date,
   };
+  let thresholdSchema = {
+    value: String,
+    status: String,
+    type: String,
+    createdAt: Date,
+  };
 
   //Create Model
   const Request = mongoose.model("Requests", requestSchema);
   const Light = mongoose.model("Lights", lightSchema);
   const Temp = mongoose.model("Temps", tempSchema);
+  const Threshold = mongoose.model("Thresholds", thresholdSchema);
 
   const server = Hapi.server({
     port: 8080,
@@ -63,7 +68,7 @@ const init = async () => {
     handler: async (request, h) => {
       let info = request.payload;
       info.createdAt = new Date();
-      info.createdBy = info.createdBy | 'Admin'
+      info.createdBy = info.createdBy | "Admin";
       console.log(info);
       let newRequest = new Request(info);
       await newRequest.save((err, task) => {
@@ -84,6 +89,45 @@ const init = async () => {
         if (err) return console.log(err);
       });
       return h.response("Success");
+    },
+  });
+  server.route({
+    method: "POST",
+    path: "/api/threshold",
+    handler: async (request, h) => {
+      let info = request.payload;
+      info.createdAt = new Date();
+      console.log(info);
+      let newRequest = new Threshold(info);
+      await Threshold.findOneAndUpdate(
+        {
+          type: request.type,
+        },
+        newRequest,
+        { new: true },
+        (err, updatedThreshold) => {
+          if (err) return h.response("Error while saving");
+          if (!updatedThreshold) {
+            newRequest.save((err) => {
+              if (err) return console.log(err);
+            });
+          }
+          return h.response("Success2");
+        }
+      );
+      return h.response("Success");
+    },
+  });
+  server.route({
+    method: "GET",
+    path: "/api/thresholds/{type}",
+    handler: async (request, h) => {
+      let params = request.params;
+      let infos = await Threshold.find(params)
+        .sort({ createdAt: -1 })
+        .limit(1)
+        .lean();
+      return h.response(infos);
     },
   });
   server.route({
@@ -114,8 +158,7 @@ const init = async () => {
     path: "/api/lights",
     handler: async (request, h) => {
       let params = request.query;
-      params.sort = { createdAt: -1 }
-      let infos = await Light.find(params).lean();
+      let infos = await Light.find(params).sort({ createdAt: -1 }).lean();
       return h.response(infos);
     },
   });
@@ -124,8 +167,7 @@ const init = async () => {
     path: "/api/temps",
     handler: async (request, h) => {
       let params = request.query;
-      params.sort = { createdAt: -1 }
-      let infos = await Temp.find(params).lean();
+      let infos = await Temp.find(params).sort({ createdAt: -1 }).lean();
       return h.response(infos);
     },
   });
