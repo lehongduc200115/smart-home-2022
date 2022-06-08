@@ -26,6 +26,15 @@ function Message(props){
     )
 }
 
+function Threshold(props) {
+    if (props.option === -1) {
+        return <span style={{color: "blue"}}>Not set</span>
+    } else if (props.option <= props.cur) {
+        return <span style={{color: "red"}}>Alert! Above threshold {props.option}, current: {props.cur}</span>
+    } else {
+        return <span style={{color: "green"}}>Normal: {props.option}, current: {props.cur}</span>
+    }
+}
 
 function AC(props){
     switch(props.option){
@@ -52,6 +61,8 @@ const URL_BACKEND = 'http://localhost:8080/api/requests'
 const URL_BACKEND_POST = 'http://localhost:8080/api/request'
 const URL_BACKEND_FETCH_LIGHT_RECORDS = 'http://localhost:8080/api/lights'
 const URL_BACKEND_FETCH_TEMP_RECORDS = 'http://localhost:8080/api/temps'
+const URL_BACKEND_FETCH_THRESHOLD_TEMP = 'http://localhost:8080/api/thresholds/temp'
+const URL_BACKEND_FETCH_THRESHOLD_LIGHT = 'http://localhost:8080/api/thresholds/light'
 const TIMEZONE = "Asia/Ho_Chi_Minh"
 
 // const ADA_KEY = "aio_ivOa26esimegQ6vCHcXcl8EP1giL"
@@ -76,6 +87,10 @@ export default function Main() {
     const [message, setMessage] = useState([])
     const [ac, setAC] = useState(0)
     const [bulb, setBulb] = useState(0)
+    const [thresholdTemp, setThresholdTemp] = useState(-1)
+    const [thresholdLight, setThresholdLight] = useState(-1)
+    const [curLight, setCurLight] = useState(-1)
+    const [curTemp, setCurTemp] = useState(-1)
     const [colorAC, setColorAC] = useState('danger')
     const [colorBulb, setColorBulb] = useState('danger')
     const [lightRecords, setLightRecords] = useState([])
@@ -107,13 +122,27 @@ export default function Main() {
             }).catch(err => {console.log(err)})
             axios.get(URL_BACKEND_FETCH_LIGHT_RECORDS).then(res => {
                 let light = res.data
-                if (light)
+                if (light) {
                     setLightRecords(light)
+                    setCurLight(light[0].value)
+                }
             }).catch(err => {console.log(err)})
             axios.get(URL_BACKEND_FETCH_TEMP_RECORDS).then(res => {
                 let temp = res.data
-                if (temp)
+                if (temp) {
                     setTempRecords(temp)
+                    setCurTemp(temp[0].value)
+                }
+            }).catch(err => {console.log(err)})
+            axios.get(URL_BACKEND_FETCH_THRESHOLD_TEMP).then(res => {
+                let temp = res.data
+                if (temp && temp.length)
+                    setThresholdTemp(temp[0].value)
+            }).catch(err => {console.log(err)})
+            axios.get(URL_BACKEND_FETCH_THRESHOLD_LIGHT).then(res => {
+                let temp = res.data
+                if (temp && temp.length)
+                    setThresholdLight(temp[0].value)
             }).catch(err => {console.log(err)})
         }, 5000); 
         
@@ -177,7 +206,11 @@ export default function Main() {
                     </div>
                     <div className='info'>
                         <div className='door'>State of ac:  <AC option={parseInt(ac)} /></div>
-                        <div className='bulb'>State of bulb:  <Bulb option={parseInt(bulb)} /></div>
+                        <div className='bulb'>State of bulb:  <Bulb option={parseInt(bulb)}/></div>
+                    </div>
+                    <div>
+                        <div>Threshold temp:  <Threshold option={parseInt(thresholdTemp)} cur={parseInt(curTemp)}/></div>
+                        <div>Threshold light:  <Threshold option={parseInt(thresholdLight)} cur={parseInt(curLight)} /></div>
                     </div>
                     <div className='control'>
                         <Button variant={colorAC} className="btn-1" onClick={() => handleAC()}>AC Switcher</Button> 
