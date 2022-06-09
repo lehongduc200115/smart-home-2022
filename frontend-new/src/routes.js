@@ -9,7 +9,7 @@ import Login from './pages/Login';
 import NotFound from './pages/Page404';
 import Register from './pages/Register';
 import Products from './pages/Products';
-// import Main from './components/Main';
+import Main from './components/Main';
 import DashboardApp from './pages/DashboardApp';
 
 // ----------------------------------------------------------------------
@@ -24,7 +24,7 @@ export default function Router() {
         { path: 'user', element: <User /> },
         { path: 'products', element: <Products /> },
         { path: 'blog', element: <Blog /> },
-        // { path: 'control', element: <Main /> },
+        { path: 'control', element: <Main /> },
       ],
     },
     {
