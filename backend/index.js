@@ -2,6 +2,17 @@
 
 const Hapi = require("@hapi/hapi");
 
+
+//helper
+function findDate(date, findAfter = false) {
+  let ret = new Date(date)
+  ret.setHours(0);
+  ret.setMinutes(0);
+  if (findAfter)
+    ret.setDate(ret.getDate()+1)
+  return ret;
+}
+
 const init = async () => {
   require("dotenv").config();
   const mongoose = require("mongoose");
@@ -38,12 +49,18 @@ const init = async () => {
     type: String,
     createdAt: Date,
   };
+  let bulbSchema = {
+    stt: Number,
+    floor: Number,
+    power: Number,
+  };
 
   //Create Model
   const Request = mongoose.model("Requests", requestSchema);
   const Light = mongoose.model("Lights", lightSchema);
   const Temp = mongoose.model("Temps", tempSchema);
   const Threshold = mongoose.model("Thresholds", thresholdSchema);
+  const Bulb = mongoose.model("Bulbs", bulbSchema);
 
   const server = Hapi.server({
     port: 8080,
@@ -131,6 +148,15 @@ const init = async () => {
     },
   });
   server.route({
+    method: "GET",
+    path: "/api/bulbs",
+    handler: async (request, h) => {
+      let params = request.params;
+      let infos = await Bulb.find(params).sort({ stt: 1 }).lean();
+      return h.response(infos);
+    },
+  });
+  server.route({
     method: "POST",
     path: "/api/temp",
     handler: async (request, h) => {
@@ -168,6 +194,92 @@ const init = async () => {
     handler: async (request, h) => {
       let params = request.query;
       let infos = await Temp.find(params).sort({ createdAt: -1 }).lean();
+      return h.response(infos);
+    },
+  });
+  server.route({
+    method: "GET",
+    path: "/api/temps/power",
+    handler: async (request, h) => {
+      let nowDate = new Date();
+      let curDate = [findDate(nowDate, true)];
+      for (let i = 0; i < 6; i++) {
+        curDate.push(findDate(new Date(curDate[i] - 360000)));
+      }
+      let params = request.query;
+      const infos = [0, 0, 0, 0, 0, 0, 0];
+      const count = [0, 0, 0, 0, 0, 0, 0];
+      for (let i = 0; i < 7; i++) {
+        params.createdAt = {
+          $gte: curDate[i + 1],
+          $lte: curDate[i],
+        };
+        let res = await Temp.find(params).lean();
+        count[i] = res ? res.length : 0;
+        for (let j = 0; j < res.length; j++) {
+          infos[i] += parseInt(res[j].value);
+        }
+      }
+      for (let i = 0; i < 7; i++) {
+        infos[i] = count[i] ? infos[i] / count[i] : 0;
+        infos[i] = infos[i].toFixed(2);
+      }
+      return h.response(infos);
+    },
+  });
+  server.route({
+    method: "GET",
+    path: "/api/bulbs/power",
+    handler: async (request, h) => {
+      let date = new Date();
+      let curDate = findDate(date, true)
+      let curDate_1 = findDate(date);
+      let params = request.query;
+      let bulbsParams = request.query;
+      const infos = [0, 0, 0, 0, 0, 0];
+      for (let i = 1; i < 5; i++) {
+        params.createdAt = {
+          $gte: curDate_1,
+          $lte: curDate,
+        };
+        params.requestType = /^LIGHT/i;
+        bulbsParams.floor = i;
+        let bulbs = await Bulb.find(bulbsParams).lean();
+        for (let j = 0; j < bulbs.length; j++) {
+          params.stt = bulbs[j].stt;
+          let reqs = await Request.find(params).sort({ createdAt: 1 }).lean();
+          console.log(`reqs: ${JSON.stringify(reqs)}`);
+          let totalTurnOn = 0;
+          for (let k = 1; k < reqs.length - 1; k++) {
+            if (
+              reqs[k].requestType === "LIGHT_ON" &&
+              reqs[k + 1].requestType === "LIGHT_OFF"
+            )
+              totalTurnOn +=
+                (reqs[k + 1].createdAt - reqs[k].createdAt) / 3600000;
+          }
+          if (reqs.length && reqs[reqs.length - 1].requestType === "LIGHT_ON") {
+            let createdAt = reqs[reqs.length - 1].createdAt;
+            console.log(`totalTurnOn pre: ${totalTurnOn}`)
+            totalTurnOn +=
+              (findDate(createdAt, true) -
+                createdAt) /
+              3600000;
+            console.log(`totalTurnOn after: ${totalTurnOn}`)
+          }
+          if (reqs.length && reqs[0].requestType === "LIGHT_OFF") {
+            let createdAt = reqs[0].createdAt;
+            totalTurnOn +=
+              (createdAt - findDate(createdAt)) / 3600000;
+          }
+          console.log(`totalTurnOn: ${totalTurnOn}`);
+          console.log(`power: ${bulbs[j].power}`);
+          infos[bulbs[j].floor] += totalTurnOn * bulbs[j].power;
+        }
+      }
+      for (let i = 0; i < 6; i++) {
+        infos[i] = infos[i].toFixed(2);
+      }
       return h.response(infos);
     },
   });
