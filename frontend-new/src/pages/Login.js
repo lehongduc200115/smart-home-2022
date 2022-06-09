@@ -63,7 +63,7 @@ export default function Login() {
 
   return (
     <Page title="Login">
-      {/* <RootStyle>
+      <RootStyle>
         <HeaderStyle>
           <Logo />
 
@@ -79,6 +79,20 @@ export default function Login() {
 
         {mdUp && (
           <SectionStyle>
+            <div className="list">
+              <a style={{ float: 'left', marginLeft: '1vw' }} href="homepage">
+                <h1 className="font2 font3">HOME</h1>
+              </a>
+              <a style={{ float: 'left', marginLeft: '2vw' }} href="#">
+                <h1 className="font2 font3">ABOUT US</h1>
+              </a>
+              <a style={{ float: 'left', marginLeft: '3vw' }} href="dashboard/app">
+                <h1 className="font2 font3">DASHBOARD</h1>
+              </a>
+              <a style={{ float: 'left', marginLeft: '3vw' }} href="login">
+                <h1 className="font2 font3">LOGIN</h1>
+              </a>
+            </div>
             <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
               Hi, Welcome Back
             </Typography>
@@ -89,7 +103,7 @@ export default function Login() {
         <Container maxWidth="sm">
           <ContentStyle>
             <Typography variant="h4" gutterBottom>
-              Sign in to Minimal
+              Sign in to SmartHome
             </Typography>
 
             <Typography sx={{ color: 'text.secondary', mb: 5 }}>Enter your details below.</Typography>
@@ -108,7 +122,7 @@ export default function Login() {
             )}
           </ContentStyle>
         </Container>
-      </RootStyle> */}
+      </RootStyle>
     </Page>
   );
 }

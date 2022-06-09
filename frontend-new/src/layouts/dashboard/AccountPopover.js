@@ -102,8 +102,9 @@ export default function AccountPopover() {
         <Divider sx={{ borderStyle: 'dashed' }} />
 
         <MenuItem onClick={handleClose} sx={{ m: 1 }}>
-          Thoát
+        <a style={{"textDecoration":"none","color":"black"}} href='/homepage'>Thoát</a>
         </MenuItem>
+        
       </MenuPopover>
     </>
   );

@@ -175,7 +175,7 @@ const init = async () => {
     path: "/api/requests",
     handler: async (request, h) => {
       let params = request.query;
-      let infos = await Request.find(params).lean();
+      let infos = await Request.find(params).sort({createdAt: -1}).lean();
       return h.response(infos);
     },
   });

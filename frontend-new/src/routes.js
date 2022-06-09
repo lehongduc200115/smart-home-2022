@@ -11,11 +11,19 @@ import Register from './pages/Register';
 import Products from './pages/Products';
 import Main from './components/Main';
 import DashboardApp from './pages/DashboardApp';
-
+import HomePage from './components/HomePage/HomePage';
 // ----------------------------------------------------------------------
 
 export default function Router() {
   return useRoutes([
+    {
+      path: '/homepage',
+      element: <HomePage />,
+    },
+    {
+      path: '/login',
+      element: <Login />,
+    },
     {
       path: '/dashboard',
       element: <DashboardLayout />,
@@ -31,8 +39,8 @@ export default function Router() {
       path: '/',
       element: <LogoOnlyLayout />,
       children: [
-        { path: '/', element: <Navigate to="/dashboard/app" /> },
-        { path: 'login', element: <Login /> },
+        { path: '/', element: <Navigate to="/homepage" /> },
+        // { path: 'login', element: <Login /> },
         // { path: 'register', element: <Register /> },
         { path: '404', element: <NotFound /> },
         { path: '*', element: <Navigate to="/404" /> },

@@ -68,7 +68,7 @@ const TIMEZONE = "Asia/Ho_Chi_Minh"
 // const ADA_KEY = "aio_ivOa26esimegQ6vCHcXcl8EP1giL"
 const ADA_USERNAME = "duyvu1109"
 // const ADA_USERNAME = "DucLe"
-const ADA_KEY = "aio_uBle44pKdRkQr19UXFYhbMah7Kwk"
+const ADA_KEY = "aio_DkoA93OPoHwO5xR5Debh8fvEmO0i"
 const BTN_FAN = 'btt-fan'
 // const BTN_FAN = 'ducle-ac'
 const BTN_LED = 'btt-led'
@@ -106,7 +106,7 @@ export default function Main() {
     },[message.length])
 
     useEffect(() => {
-        let interval = null;
+    let interval = null;
         let data_device;
         interval = setInterval(() => {
             axios.get(`https://io.adafruit.com/api/v2/${ADA_USERNAME}/feeds?x-aio-key=` + ADA_KEY).then(res => {

@@ -80,7 +80,7 @@
 	display: flex;
 	text-transform: uppercase;
 	font-weight: bold;
-	font-size: 20px;
+	/* font-size: 20px; */
 }
 .current-state { 
 	grid-area: auto / auto / auto / auto;
@@ -178,11 +178,11 @@
 .btn-1{
 	/* color: beige !important; */
 	font-size: 16px !important;
-	background-color: #D0F2FF;
+	/* background-color: #D0F2FF; */
 	text-transform: uppercase !important;
 	font-weight: bold !important;
 	height: 60px !important;
-	border-radius: 30px !important;
+	border-radius: 15px !important;
 }
 
 input[type=checkbox].toggle {
