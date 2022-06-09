@@ -2,6 +2,7 @@ import './App.css';
 import Main from './components/Main';
 import Login from './components/Login';
 import PrivateRoute from './components/PrivateRoute';
+import HomePage from "./components/HomePage/HomePage";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "../node_modules/video-react/dist/video-react.css";
@@ -21,6 +22,7 @@ function App() {
 						<Main />
 					</PrivateRoute>
 				} />
+				<Route path="/homepage" element={<HomePage />} ></Route>
 
 				{/* <PrivateRoute path="/update-profile" component={UpdateProfile} /> */}
 				<Route path="/login" element={ <Login />} > </Route>
