@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css?family=Mulish');
+
+
+.bd1 {
+    background-image: url(pic/homepage.png) no-repeat center center fixed; 
+    background-size: cover ;
+}
+
+.font {
+    font-family: 'Mulish';
+    font-weight: bolder;
+    font-size: 5vw;
+    color: #1E3240;
+}
+
+.font1 {
+    font-family: 'Mulish';
+    font-weight: 500;
+    font-size: 1.5vw;
+    color: #1E3240;
+}
+
+.button {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    width: 127px;
+    height: 53px;
+    background: #1E3240;
+}
+
+.button1 {
+    background: none;
+    border: 1px solid #1E3240;
+}
+
+.font2 {
+    width: 79px;
+    height: 15px;
+    font-family: 'Mulish';
+    font-style: normal;
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 140%;
+    color: #FFFFFF;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+}
+
+.font3 {
+    color: #1E3240;
+}
+
+.list{
+    padding-top: 1vw;
+}
+
+.list a{
+    text-decoration: none;
+}
+
+
+
+
