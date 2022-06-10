@@ -7,6 +7,6 @@ To run the project:
 2. Start BE Server:
     cd backend -> npm install -> npm start
 3. Start FE Server:
-    cd frontend -> npm start
+    cd frontend-new -> npm install -> npm start
 
 Lauch localhost:3000 to access index page. Good luck
